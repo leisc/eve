@@ -95,6 +95,13 @@ export async function resolveAgent(input: ResolveAgentInput): Promise<ResolvedAg
       resolveConnectionDefinition(connectionDefinition, input.moduleMap, input.nodeId),
     ),
   );
+
+  // Apply optional connectionFilter from agent definition.
+  // Allows authors to dynamically enable/disable connections at runtime.
+  const connectionFilter = (
+    input.manifest.config as { connectionFilter?: (c: typeof resolvedConnections) => typeof resolvedConnections }
+  ).connectionFilter;
+  const enabledConnections = connectionFilter ? connectionFilter(resolvedConnections) : resolvedConnections;
   const authoredSandbox =
     input.manifest.sandbox === null
       ? null
@@ -104,7 +111,7 @@ export async function resolveAgent(input: ResolveAgentInput): Promise<ResolvedAg
   const resolvedAgent: ResolvedAgent = {
     channels: resolvedChannels,
     config: createResolvedAgentConfig(input.manifest),
-    connections: resolvedConnections,
+    connections: enabledConnections,
     disabledFrameworkChannels,
     disabledFrameworkTools: [...input.manifest.disabledFrameworkTools],
     workflowEnabled: input.manifest.workflowEnabled,

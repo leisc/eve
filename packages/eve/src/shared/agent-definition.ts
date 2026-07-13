@@ -328,4 +328,14 @@ export type PublicAgentDefinition = {
    * per-message output schema.
    */
   readonly outputSchema?: StandardJSONSchemaV1<unknown, unknown> | JsonObject;
+  /**
+   * Optional filter for connections resolved at build time.
+   * Receives the full list of resolved connections and should return only
+   * the subset that should be available to the model. Disabled connections
+   * are completely excluded — they don't appear in the system prompt,
+   * connection_search, or any other runtime surface.
+   */
+  readonly connectionFilter?: (
+    connections: readonly { readonly connectionName: string; readonly description: string }[],
+  ) => readonly { readonly connectionName: string; readonly description: string }[];
 };
