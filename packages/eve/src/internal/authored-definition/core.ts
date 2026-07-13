@@ -48,6 +48,7 @@ export function normalizeAgentDefinition(
     [
       "build",
       "compaction",
+      "connectionFilter",
       "description",
       "experimental",
       "limits",
