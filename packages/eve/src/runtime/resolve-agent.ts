@@ -97,9 +97,7 @@ export async function resolveAgent(input: ResolveAgentInput): Promise<ResolvedAg
   );
 
   // Filter connections by reading agent/enabled-connections.json.
-  // This bypasses the agent config pipeline — the filter lives in the
-  // filesystem, not in the compiled agent definition type system.
-  const enabledConnections = filterEnabledConnections(
+  const resolvedConnections = filterEnabledConnections(
     input.manifest.agentRoot,
     resolvedConnections,
   );
@@ -112,7 +110,7 @@ export async function resolveAgent(input: ResolveAgentInput): Promise<ResolvedAg
   const resolvedAgent: ResolvedAgent = {
     channels: resolvedChannels,
     config: createResolvedAgentConfig(input.manifest),
-    connections: enabledConnections,
+    connections: resolvedConnections,
     disabledFrameworkChannels,
     disabledFrameworkTools: [...input.manifest.disabledFrameworkTools],
     workflowEnabled: input.manifest.workflowEnabled,
@@ -260,29 +258,4 @@ function createResolvedAgentConfig(manifest: CompiledAgentNodeManifest): Resolve
   }
 
   return config;
-}
-
-import type { ResolvedConnectionDefinition } from "#runtime/types.js";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-
-/**
- * Reads agent/enabled-connections.json and filters the resolved
- * connections list. If the file is missing or unreadable, returns
- * all connections (safe default for deployments without the file).
- */
-function filterEnabledConnections(
-  agentRoot: string,
-  connections: readonly ResolvedConnectionDefinition[],
-): readonly ResolvedConnectionDefinition[] {
-  try {
-    const filePath = join(agentRoot, "enabled-connections.json");
-    if (!existsSync(filePath)) return connections;
-    const raw = readFileSync(filePath, "utf8");
-    const enabled = JSON.parse(raw) as string[];
-    if (!Array.isArray(enabled)) return connections;
-    return connections.filter((c) => enabled.includes(c.connectionName));
-  } catch {
-    return connections;
-  }
 }
