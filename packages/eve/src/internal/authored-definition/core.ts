@@ -107,6 +107,11 @@ export function normalizeAgentDefinition(
     definition.limits = normalizeAgentLimitsDefinition(record.limits, message);
   }
 
+  if (record.connectionFilter !== undefined) {
+    definition.connectionFilter =
+      record.connectionFilter as NormalizedAgentDefinition["connectionFilter"];
+  }
+
   return definition as Readonly<NormalizedAgentDefinition>;
 }
 
