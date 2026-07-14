@@ -95,12 +95,6 @@ export async function resolveAgent(input: ResolveAgentInput): Promise<ResolvedAg
       resolveConnectionDefinition(connectionDefinition, input.moduleMap, input.nodeId),
     ),
   );
-
-  // Filter connections by reading agent/enabled-connections.json.
-  const resolvedConnections = filterEnabledConnections(
-    input.manifest.agentRoot,
-    resolvedConnections,
-  );
   const authoredSandbox =
     input.manifest.sandbox === null
       ? null

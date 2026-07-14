@@ -1,9 +1,7 @@
 import { ConnectionRegistryKey } from "#context/providers/connection-key.js";
 import { ConnectionRegistryImpl } from "#runtime/connections/registry.js";
-import type {
-  ConnectionRegistry,
-  ResolvedConnectionDefinition,
-} from "#runtime/connections/types.js";
+import type { ConnectionRegistry } from "#runtime/connections/types.js";
+import type { ResolvedConnectionDefinition } from "#runtime/types.js";
 import { BundleKey } from "#runtime/sessions/runtime-context-keys.js";
 import { getActiveRuntimeNode } from "#context/node.js";
 import type { FrameworkContextProvider } from "#context/provider.js";
@@ -39,9 +37,10 @@ function filterEnabled(
     const filePath = join(agentRoot, "enabled-connections.json");
     if (!existsSync(filePath)) return connections;
     const raw = readFileSync(filePath, "utf8");
-    const list = JSON.parse(raw) as string[];
+    const list: unknown = JSON.parse(raw);
     if (!Array.isArray(list)) return connections;
-    return connections.filter((c) => list.includes(c.connectionName));
+    const names = list as string[];
+    return connections.filter((c) => names.includes(c.connectionName));
   } catch {
     return connections;
   }
